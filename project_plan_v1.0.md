@@ -17,7 +17,7 @@
 **1.1 RunPod 账户与访问:**
     *   Ensure an active RunPod account.
     *   Generate a RunPod API Key for programmatic access (if needed for automation).
-    *   Generate an SSH key pair locally (`ssh-keygen`). Note the public key content (`cat ~/.ssh/id_rsa.pub`).
+    *   Generate an SSH key pair locally (<code>ssh-keygen</code>). Note the public key content (<code>cat ~/.ssh/id_rsa.pub</code>).
 
 **1.2 RunPod 网络卷 (Network Volume):**
     *   Create a RunPod Network Volume in the desired region.
@@ -30,11 +30,11 @@
         1.  Launch a **temporary utility Pod** (any basic template, e.g., `RunPod Pytorch`).
         2.  **Attach** the Network Volume created in 1.2 during Pod creation (e.g., mount at `/workspace`).
         3.  通过 SSH 连接到该工具 Pod。
-        4.  安装必要工具: `pip install huggingface_hub[cli]`
-        5.  **(可选) 登录 Hugging Face:** `huggingface-cli login` (如果模型是受限访问的)。
-        6.  切换到卷挂载点: `cd /workspace`
-        7.  创建模型目录: `mkdir -p models/deepseek-r1`
-        8.  进入目录: `cd models/deepseek-r1`
+        4.  安装必要工具: <code>pip install huggingface_hub[cli]</code>
+        5.  **(可选) 登录 Hugging Face:** <code>huggingface-cli login</code> (如果模型是受限访问的)。
+        6.  切换到卷挂载点: <code>cd /workspace</code>
+        7.  创建模型目录: <code>mkdir -p models/deepseek-r1</code>
+        8.  进入目录: <code>cd models/deepseek-r1</code>
         9.  下载模型文件:
             ```bash
             # 下载 FP8 权重 (如果 FP8 文件命名有特定模式，请调整 include/exclude 参数)
@@ -49,7 +49,7 @@
                 --exclude "*.bin" --exclude "*.safetensors" --exclude "*.pt" --exclude "*.fp8" \
                 --local-dir . --local-dir-use-symlinks False
             ```
-        10. 验证下载内容 (`ls -lh .`)。确保 `config.json`, tokenizer 文件, 和 FP8 权重文件都存在。
+        10. 验证下载内容 (<code>ls -lh .</code>)。确保 <code>config.json</code>, tokenizer 文件, 和 FP8 权重文件都存在。
         11. **Terminate** the temporary utility Pod. The model remains on the Network Volume.
 
 **1.4 推理 Pod 定义:**
@@ -76,8 +76,8 @@
     *   使用 Pod 的连接信息 (IP, 端口 22) 和您的私钥进行 SSH 连接。
 
 **2.3 安装/验证工具:**
-    *   确认模板中已包含 `vllm`, `ray` (后续步骤可能需要), `pip`, `python`。
-    *   如果需要，安装缺失的依赖 (`pip install ...`)。
+    *   确认模板中已包含 <code>vllm</code>, <code>ray</code> (后续步骤可能需要), <code>pip</code>, <code>python</code>。
+    *   如果需要，安装缺失的依赖 (<code>pip install ...</code>)。
 
 **2.4 启动 vLLM 服务 (张量并行):**
     *   执行 vLLM API 服务器启动命令:
@@ -93,10 +93,10 @@
             --port 8000
             # 根据需要添加其他相关 vLLM 参数 (注意降低 memory utilization)
         ```
-    *   监控日志，检查是否成功加载，有无 OOM 错误。使用 `nvidia-smi` 检查 VRAM 使用情况。
+    *   监控日志，检查是否成功加载，有无 OOM 错误。使用 <code>nvidia-smi</code> 检查 VRAM 使用情况。
 
 **2.5 最低限度推理测试:**
-    *   在 Pod 上的 *另一个终端* (或如果 8000 端口已转发/暴露，可从本地使用 `curl`):
+    *   在 Pod 上的 *另一个终端* (或如果 8000 端口已转发/暴露，可从本地使用 <code>curl</code>):
         ```bash
         curl http://localhost:8000/v1/completions \
         -H "Content-Type: application/json" \
@@ -135,7 +135,7 @@
         # 将 <Pod_A_IP> 替换为 Pod A 的实际内部 IP
         ray start --address=<Pod_A_IP>:6379
         ```
-    *   **验证集群 (在 Pod A 上):** `ray status`。应显示有 2 个节点，共 16 块可用 GPU。
+    *   **验证集群 (在 Pod A 上):** <code>ray status</code>。应显示有 2 个节点，共 16 块可用 GPU。
 
 **3.3 通过 Ray 启动分布式 vLLM 服务:**
     *   **在 Pod A 上 (或通过 Ray Job 提交):** 启动配置为 Ray 分布式的 vLLM API 服务器。
@@ -191,7 +191,7 @@
         *   Pod 间网络带宽 (如果可测量)。
         *   Ray 集群资源使用情况。
     *   **成本:**
-        *   每小时 RunPod 成本 (`2 * 8xH100_NVL_pod每小时费用` + CPU Pod 费用)。
+        *   每小时 RunPod 成本 (<code>2 * 8xH100_NVL_pod每小时费用</code> + CPU Pod 费用)。
         *   估算的每百万输出 Token 成本。
 
 **4.3 测试场景:**
