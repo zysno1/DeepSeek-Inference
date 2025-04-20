@@ -38,13 +38,16 @@
         9.  Download model files:
             ```bash
             huggingface-cli download deepseek-ai/DeepSeek-R1 \
-                --local-dir . \
-                --local-dir-use-symlinks False \
-                --include="*.fp8" # Adjust include/exclude pattern if FP8 files have specific naming
-            # Also download essential non-weight files (config.json, tokenizer*, etc.)
-            # Example: huggingface-cli download deepseek-ai/DeepSeek-R1 --include="*.json" --include="*.model" --local-dir . --local-dir-use-symlinks False
+                --repo-type model \
+                --include "*.fp8" \
+                --local-dir . --local-dir-use-symlinks False
+
+            huggingface-cli download deepseek-ai/DeepSeek-R1 \
+                --repo-type model \
+                --exclude "*.bin" --exclude "*.safetensors" --exclude "*.pt" --exclude "*.fp8" \
+                --local-dir . --local-dir-use-symlinks False
             ```
-        10. Verify download contents (`ls -lh .`).
+        10. Verify download contents (`ls -lh .`). Ensure `config.json`, tokenizer files, and FP8 weight files exist.
         11. **Terminate** the temporary utility Pod. The model remains on the Network Volume.
 
 **1.4 Inference Pod Definition:**
@@ -77,14 +80,14 @@
 **2.4 Start vLLM Server (Tensor Parallel):**
     *   Execute the vLLM API server startup command:
         ```bash
-        python -m vllm.entrypoints.api_server \\
-            --model /workspace/models/deepseek-r1 \\
-            --tensor-parallel-size 8 \\
-            --dtype float8_e4m3fn \\ # Explicitly specify FP8 dtype if applicable
-            --kv-cache-dtype fp8 \\  # Specify KV cache dtype if using FP8 cache
-            --gpu-memory-utilization 0.90 \\ # Adjust as needed
-            --max-model-len 8192 \\ # Start with a smaller context length for validation
-            --trust-remote-code \\ # Often needed for complex models
+        python -m vllm.entrypoints.api_server \
+            --model /workspace/models/deepseek-r1 \
+            --tensor-parallel-size 8 \
+            --dtype float8_e4m3fn \
+            --kv-cache-dtype fp8 \
+            --gpu-memory-utilization 0.90 \
+            --max-model-len 8192 \
+            --trust-remote-code \
             --port 8000
             # Add other relevant vLLM args as needed
         ```
@@ -93,8 +96,8 @@
 **2.5 Minimal Inference Test:**
     *   From *another terminal* on the Pod (or use `curl` from local if port 8000 is forwarded/exposed):
         ```bash
-        curl http://localhost:8000/v1/completions \\
-        -H "Content-Type: application/json" \\
+        curl http://localhost:8000/v1/completions \
+        -H "Content-Type: application/json" \
         -d '{
             "model": "/workspace/models/deepseek-r1",
             "prompt": "DeepSeek R1 is",
@@ -135,15 +138,15 @@
 **3.3 Start Distributed vLLM Service via Ray:**
     *   **On Pod A (or via Ray Job Submission):** Launch the vLLM API server configured for Ray distribution.
         ```bash
-        python -m vllm.entrypoints.api_server \\
-            --model /workspace/models/deepseek-r1 \\
-            --tensor-parallel-size 16 \\ # Total GPUs across the cluster
-            --distributed-executor-backend ray \\
-            --dtype float8_e4m3fn \\ # Specify FP8 if used
-            --kv-cache-dtype fp8 \\ # Specify FP8 if used
-            --gpu-memory-utilization 0.90 \\
-            --max-model-len 128000 \\ # Target full context length
-            --trust-remote-code \\
+        python -m vllm.entrypoints.api_server \
+            --model /workspace/models/deepseek-r1 \
+            --tensor-parallel-size 16 \
+            --distributed-executor-backend ray \
+            --dtype float8_e4m3fn \
+            --kv-cache-dtype fp8 \
+            --gpu-memory-utilization 0.90 \
+            --max-model-len 128000 \
+            --trust-remote-code \
             --port 8000
             # Add other relevant vLLM/Ray args
         ```
