@@ -76,8 +76,8 @@
     *   使用 Pod 的连接信息 (IP, 端口 22) 和您的私钥进行 SSH 连接。
 
 **2.3 安装/验证工具:**
-    *   确认模板中已包含 `` `vllm` ``, `` `ray` `` (后续步骤可能需要), `` `pip` ``, `` `python` ``。
-    *   如果需要，安装缺失的依赖 (`` `pip install ...` ``)。
+    *   确认模板中已包含 `vllm`, `ray` (后续步骤可能需要), `pip`, `python`。
+    *   如果需要，安装缺失的依赖 (`pip install ...`)。
 
 **2.4 启动 vLLM 服务 (张量并行):**
     *   执行 vLLM API 服务器启动命令:
@@ -93,10 +93,10 @@
             --port 8000
             # 根据需要添加其他相关 vLLM 参数 (注意降低 memory utilization)
         ```
-    *   监控日志，检查是否成功加载，有无 OOM 错误。使用 `` `nvidia-smi` `` 检查 VRAM 使用情况。
+    *   监控日志，检查是否成功加载，有无 OOM 错误。使用 `nvidia-smi` 检查 VRAM 使用情况。
 
 **2.5 最低限度推理测试:**
-    *   在 Pod 上的 *另一个终端* (或如果 8000 端口已转发/暴露，可从本地使用 `` `curl` ``):
+    *   在 Pod 上的 *另一个终端* (或如果 8000 端口已转发/暴露，可从本地使用 `curl`):
         ```bash
         curl http://localhost:8000/v1/completions \
         -H "Content-Type: application/json" \
@@ -135,7 +135,7 @@
         # 将 <Pod_A_IP> 替换为 Pod A 的实际内部 IP
         ray start --address=<Pod_A_IP>:6379
         ```
-    *   **验证集群 (在 Pod A 上):** `` `ray status` ``。应显示有 2 个节点，共 16 块可用 GPU。
+    *   **验证集群 (在 Pod A 上):** `ray status`。应显示有 2 个节点，共 16 块可用 GPU。
 
 **3.3 通过 Ray 启动分布式 vLLM 服务:**
     *   **在 Pod A 上 (或通过 Ray Job 提交):** 启动配置为 Ray 分布式的 vLLM API 服务器。
@@ -159,7 +159,7 @@
     *   部署 Dynamo Planner 和 Router 组件 (可在单独的 CPU Pod 上，或资源允许时与 vLLM Pod 共存)。
     *   配置 Dynamo Router 将请求转发到 vLLM+Ray 服务的端点 (例如，Pod A 的 IP 地址和 8000 端口，假定有内部负载均衡或直接访问)。
     *   配置 Dynamo Planner 使用 RunPod 凭证和策略以实现可能的自动伸缩 (如果需要)。
-    *   配置 Dynamo 的调度逻辑以实现所需的 P/D 请求处理模式 (例如，优先处理 P 阶段，管理 D 阶段迭代)。*这是“逻辑上的”P/D 分离。*
+    *   配置 Dynamo 的调度逻辑以实现所需的 P/D 请求处理模式 (例如，优先处理 P 阶段，管理 D 阶段迭代)。*这是"逻辑上的"P/D 分离。*
 
 **3.5 服务测试:**
     *   向 **Dynamo Router 的入口点** 发送推理请求。
@@ -191,7 +191,7 @@
         *   Pod 间网络带宽 (如果可测量)。
         *   Ray 集群资源使用情况。
     *   **成本:**
-        *   每小时 RunPod 成本 (`` `2 * 8xH100_NVL_pod每小时费用` `` + CPU Pod 费用)。
+        *   每小时 RunPod 成本 (`2 * 8xH100_NVL_pod每小时费用` + CPU Pod 费用)。
         *   估算的每百万输出 Token 成本。
 
 **4.3 测试场景:**
